@@ -495,6 +495,9 @@ public class UsersAction extends PagedResourceActionII
 		value = (String) state.getAttribute("valueType");
 		if (value != null) context.put("valueType", value);
 		
+		value = (String) state.getAttribute("valueSchool");
+		if (value != null) context.put("valueSchool", value);
+		
 		//optional attributes list
 		context.put("optionalAttributes", getOptionalAttributes());
 		
@@ -978,6 +981,7 @@ public class UsersAction extends PagedResourceActionII
 		state.removeAttribute("valueLastName");
 		state.removeAttribute("valueEmail");
 		state.removeAttribute("valueType");
+		state.removeAttribute("valueSchool");
 
 		// return to main mode
 		state.removeAttribute("mode");
@@ -1232,7 +1236,9 @@ public class UsersAction extends PagedResourceActionII
 		state.setAttribute("valueEmail", email);
 		String pw = StringUtils.trimToNull(data.getParameters().getString("pw"));
         String pwConfirm = StringUtils.trimToNull(data.getParameters().getString("pw0"));
-
+        String school = StringUtils.trimToNull(data.getParameters().getString("school"));
+		state.setAttribute("valueSchool", school);
+		
         String pwcur = StringUtils.trimToNull(data.getParameters().getString("pwcur"));
         
         Integer disabled = Integer.valueOf(StringUtils.trimToNull(data.getParameters().getString("disabled")) != null ? "1" : "0" );
@@ -1368,7 +1374,8 @@ public class UsersAction extends PagedResourceActionII
 			count++;
 		}
 		
-
+		properties.addProperty("school", school);
+		
 		// add if needed
 		if (user == null)
 		{
@@ -1429,6 +1436,7 @@ public class UsersAction extends PagedResourceActionII
 			}
 			
 			
+			
 			try
 			{
 				// add the user in one step so that all you need is add not update permission
@@ -1471,6 +1479,7 @@ public class UsersAction extends PagedResourceActionII
 						}
 					}
 				}
+				
 
 				// put the user in the state
 				state.setAttribute("newuser", newUser);
