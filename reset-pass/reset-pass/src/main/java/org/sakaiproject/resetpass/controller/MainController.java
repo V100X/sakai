@@ -222,13 +222,20 @@ public class MainController {
         boolean exceptionMsg = this.validateExceptions(requestString);
 
         if (errorMsg == null && !exceptionMsg) {
-            jsonResponse.put("support_msg", supportMessage);
             jsonResponse.put("email_sent_msg", emailSentMessage);
             processAction(requestString);
+            
+            if (supportMessage != null){
+                jsonResponse.put("support_msg", supportMessage);
+            }
 
         } else if (exceptionMsg){
-            jsonResponse.put("support_msg", supportMessage);
             jsonResponse.put("exception_msg", exceptionMessage);
+            
+            if (supportMessage != null){
+                jsonResponse.put("support_msg", supportMessage);
+            }
+            
 
         } else {
             jsonResponse.put("error_msg", errorMsg);
