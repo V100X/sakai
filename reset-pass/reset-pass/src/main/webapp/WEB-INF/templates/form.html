@@ -1,0 +1,130 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head th:replace="fragments/common :: head" />
+
+<body>
+
+	<div class="portletBody">
+
+		<div class="page-header">
+            <h1 th:text="#{mainTitle}">Reset your password</h1>
+        </div>
+
+        <div  class="sak-banner-info hidden" id="email-sent-msg"></div>
+
+        <div th:if="${placement == null}" >
+
+            <p class="sak-banner-info" th:text="#{mainText(${uiService})}">This password service is only available for guest users on {0}.</p>
+            <p class="sak-banner-info" th:unless="${placement.getConfig().getProperty('instructions')}">Instructions from tool properties</p>
+
+        </div>
+
+        <p class="sak-banner-info" id="instructionInfo" th:text="#{explanation}">Upon submission, an email will be sent to you containing a link where you can securely set your password. You will have 1 hour before this link expires.</p>
+
+        <p class="sak-banner-info hidden" id="support-msg"></p>
+
+        <div  class="sak-banner-error hidden" id="error-msg" ></div>
+
+        <form class="row" id="emailForm">
+
+            <div class="col-sm-12">
+                <label class="act" th:text="#{formLabel}">Your email address: </label>
+            </div>
+
+            <div class="col-sm-4">
+                <input id="mailInput" class="form-control" type="text" placeholder="mail@example.com"/>
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div  class="act col-sm-12">
+                <button id="sendBtn" th:if="${validatingAccounts}" type="submit" th:text="#{postForm2}"></button>
+                <button id="sendBtn" th:unless="${validatingAccounts}" type="submit"  th:text="#{postForm}"></button>
+            </div>
+
+        </form>
+
+    </div>
+
+	<script th:inline="javascript">
+    /*<![CDATA[*/
+        document.addEventListener("DOMContentLoaded", function(event) {
+
+            var expirationMinutes = /*[[${expirationMinutes}]]*/;
+            var minutes = /*[[#{explanation}]]*/;
+            minutes = minutes.replace("{0}", moment.duration(expirationMinutes, "minutes").humanize());
+            document.getElementById("instructionInfo").textContent = minutes;
+
+        });
+
+
+        document.getElementById('emailForm').addEventListener('submit', function(e) {
+           e.preventDefault();
+
+            var email = document.getElementById("mailInput").value;
+            var sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.classList.add("spinButton");
+
+        fetch(window.location.href.split('?')[0] + '/formsubmit', {
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+            body: email
+        })
+            .then(function(response) {
+
+                if (!response.ok) {
+                    throw response;
+                }
+                    return response.json().then(function (response) {
+
+                        var sendBtn = document.getElementById('sendBtn');
+                        sendBtn.disabled = false;
+                        sendBtn.classList.remove("spinButton");
+
+                        var infoMsg =  document.getElementById('instructionInfo');
+                        var errorMsg =  document.getElementById('error-msg');
+                        var emailSentMsg =  document.getElementById('email-sent-msg');
+                        var supportMsg =  document.getElementById('support-msg');
+
+                        if (response.error_msg !== undefined) {
+                            infoMsg.classList.remove("hidden");
+                            emailSentMsg.classList.add("hidden");
+                            supportMsg.classList.add("hidden");
+                            errorMsg.classList.remove("hidden");
+                            var message = response.error_msg;
+                            errorMsg.textContent = message;
+                        }
+
+                        if (response.exception_msg !== undefined) {
+                            infoMsg.classList.add("hidden");
+                            errorMsg.classList.add("hidden");
+                            emailSentMsg.classList.remove("hidden");
+                            var message = response.exception_msg;
+                            emailSentMsg.innerHTML = message;
+                        }
+
+                        if (response.email_sent_msg !== undefined) {
+                            infoMsg.classList.add("hidden");
+                            emailSentMsg.classList.remove("hidden");
+                            errorMsg.classList.add("hidden");
+                            var message = response.email_sent_msg;
+                            emailSentMsg.textContent = message;
+                        }
+
+                        if (response.support_msg !== undefined) {
+                            infoMsg.classList.add("hidden");
+                            supportMsg.classList.remove("hidden");
+                            errorMsg.classList.add("hidden");
+                            var message = response.support_msg;
+                            supportMsg.innerHTML = message;
+                        }
+                    });
+            });
+        });
+    /*]]>*/
+    </script>
+
+</body>
+
+</html>
