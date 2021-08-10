@@ -18,7 +18,7 @@ VALIDATOR.lastSentPasswordLength = 0; // SAK-29099
 // Validate the password from the form
 VALIDATOR.validatePassword = function() {
 	var username = VALIDATOR.get("eid").innerHTML;
-	var pw = VALIDATOR.get("passrow1::password1").value;
+	var pw = VALIDATOR.get("password1").value;
 	var strongMsg = VALIDATOR.get("strongMsg");
 	var moderateMsg = VALIDATOR.get("moderateMsg");
 	var weakMsg = VALIDATOR.get("weakMsg");
@@ -59,7 +59,7 @@ VALIDATOR.validatePassword = function() {
 					VALIDATOR.passwordValid = true;
 					VALIDATOR.passwordStrong = true;
 				}
-				
+
 				// SAK-29099 - track current length of input password
 				VALIDATOR.lastSentPasswordLength = pw.length;
 	    	}
@@ -117,8 +117,8 @@ VALIDATOR.clearPasswordMatchMsgs = function() {
 
 // Verify the passwords match
 VALIDATOR.verifyPasswordsMatch = function() {
-	var pw = VALIDATOR.get("passrow1::password1").value;
-	var pw2 = VALIDATOR.get("passrow2::password2").value;
+	var pw = VALIDATOR.get("password1").value;
+	var pw2 = VALIDATOR.get("password2").value;
 
 	var matchMsg = VALIDATOR.get("matchMsg");
 	var noMatchMsg = VALIDATOR.get("noMatchMsg");
@@ -165,27 +165,29 @@ VALIDATOR.validateLastName = function() {
 	VALIDATOR.validateActivateForm();
 };
 
-VALIDATOR.validateTermsChecked = function() {
-	VALIDATOR.termsChecked = true;
-	var terms = VALIDATOR.get("termsrow::terms");
-	if (terms !== null)
-	{
-		VALIDATOR.termsChecked = terms.checked;
-	}
+VALIDATOR.validateTermsChecked = function() {	
+	var terms = VALIDATOR.get("termsCheck");
+	if (terms.checked){
+            VALIDATOR.termsChecked = true;
+                
+	} else {
+            VALIDATOR.termsChecked = false;
+    }
 
 	VALIDATOR.validateActivateForm();
 };
 
 // Conditionally show/hide the strength info message
 VALIDATOR.displayStrengthInfo = function() {
-	if (VALIDATOR.isPasswordPolicyEnabled) {
-		var showStrengthInfo = false;
+	if (VALIDATOR.isPasswordPolicyEnabled) {		
 		var strengthInfo = VALIDATOR.get("strengthInfo");
-		var passField = VALIDATOR.get("passrow1::password1");
+		var passField = VALIDATOR.get("password1");
 		if (passField.value.length > 0) {
 			if (!VALIDATOR.passwordValid || (!VALIDATOR.passwordStrong && passField === document.activeElement)) {
 				showStrengthInfo = true;
 			}
+		} else {
+			var showStrengthInfo = false;
 		}
 		
 		VALIDATOR.display(strengthInfo, showStrengthInfo);
@@ -197,16 +199,24 @@ VALIDATOR.displayStrengthInfo = function() {
 // and all other validation is met.  
 VALIDATOR.validateActivateForm = function() {
 	var submitButton = VALIDATOR.get("addDetailsSub");
-	if (submitButton !== null)
-	{
-		if (VALIDATOR.firstNameValid && VALIDATOR.lastNameValid && VALIDATOR.get("passrow1::password1").value.length > 0 &&
-			VALIDATOR.get("passrow2::password2").value.length > 0 && VALIDATOR.termsChecked) {
+	var terms = VALIDATOR.get("termsCheck");
+	submitButton.disabled = true;
 
-			submitButton.disabled = false;
-		}
-		else {
+	if (submitButton !== null) {
+
+		if (VALIDATOR.firstNameValid && VALIDATOR.lastNameValid && VALIDATOR.get("password1").value.length > 0 &&
+			VALIDATOR.get("password2").value.length > 0 && VALIDATOR.passwordsMatch) {
+
+			if (terms != null && !VALIDATOR.termsChecked) {
+				submitButton.disabled = true;
+
+			} else {
+				submitButton.disabled = false;
+			}
+
+		} else {
 			submitButton.disabled = true;
-		}
+		}		
 	}
 };
 
@@ -313,9 +323,4 @@ $(document).ready(function() {
         return errors === 0;
     });
 
-    // SAK-24427
-    VALIDATOR.validateFirstName();
-    VALIDATOR.validateLastName();
-    VALIDATOR.validateTermsChecked();
-    VALIDATOR.checkTransferStatus();
 });
