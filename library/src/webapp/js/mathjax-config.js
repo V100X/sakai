@@ -47,7 +47,7 @@ let confObject = {
 }
 
 if (defaultDelimiters) {
-    confObject["tex2jax"] = { inlineMath: [['$$','$$'],['\\(','\\)']] };
+    confObject["tex2jax"] = { inlineMath: [['$','$'],['$$','$$'],['\\(','\\)']] };
 }
 
 // Add the final MathJax config as string inside the script tag to make it work.

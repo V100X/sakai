@@ -130,10 +130,15 @@ public class HtmlPageFilter implements ContentFilter {
 			JSONArray delimiter2 = new JSONArray();
 			delimiter2.add("\\(");
 			delimiter2.add("\\)");
+
+			JSONArray delimiter3 = new JSONArray();
+			delimiter3.add("$");
+			delimiter3.add("$");
 	
 			JSONArray delimiters = new JSONArray();
 			delimiters.add(delimiter1);
 			delimiters.add(delimiter2);
+			delimiters.add(delimiter3);
 	
 			JSONObject inlineMath = new JSONObject();
 			inlineMath.put("inlineMath", delimiters);
